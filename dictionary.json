@@ -1,0 +1,234 @@
+{
+  "tables": [
+    {
+      "table": "immigration_fact",
+      "table_description": "Immigration Fact table.",
+      "fields": [
+        {
+          "field_name": "record_id",
+          "field_description": "Unique record ID"
+        },
+        {
+          "field_name": "country_residence_code",
+          "field_description": "3 digit code for immigrant country of residence "
+        },
+        {
+          "field_name": "visa_type_key",
+          "field_description": "A numerical key that links to the visa_type dimension table"
+        },
+        {
+          "field_name": "state_code",
+          "field_description": "US state code"
+        },
+        {
+          "field_name": "i94yr",
+          "field_description": "4 digit year"
+        },
+        {
+          "field_name": "i94mon",
+          "field_description": "Month"
+        },
+        {
+          "field_name": "i94port",
+          "field_description": "Port of admission"
+        },
+        {
+          "field_name": "arrdate",
+          "field_description": "Arrival date in the USA"
+        },
+        {
+          "field_name": "i94mode",
+          "field_description": "Mode of entry in country, e.g. 1 = Air"
+        }, 
+        {
+          "field_name": "i94addr",
+          "field_description": "US state short name"
+        }, 
+        {
+          "field_name": "depdate",
+          "field_description": "Departure date"
+        }, 
+        {
+          "field_name": "i94bir",
+          "field_description": "Age in years"
+        },
+        {
+          "field_name": "i94visa",
+          "field_description": "Visa code"
+        }, 
+        {
+          "field_name": "i94visa",
+          "field_description": "Visa code"
+        }, 
+        {
+          "field_name": "count",
+          "field_description": "Summary statistics"
+        },
+        {
+          "field_name": "dtadfile",
+          "field_description": "Date as character"
+        },
+        { 
+          "field_name": "visapost",
+          "field_description": "Department of state where where Visa was issued"
+        },
+        { 
+          "field_name": "occup",
+          "field_description": "Occupation"
+        },
+        { 
+          "field_name": "entdepa",
+          "field_description": "Arrival Flag - admitted or paroled into the U.S."
+        },
+        { 
+          "field_name": "entdepd",
+          "field_description": "Departure Flag - aeparted, lost I-94 or is deceased"
+        },
+        { 
+          "field_name": "entdepu",
+          "field_description": "Update Flag - apprehended, overstayed, adjusted to perm residence"
+        },
+        { 
+          "field_name": "matflag",
+          "field_description": "Match flag - Match of arrival and departure records"
+        },
+        { 
+          "field_name": "biryear",
+          "field_description": "Year of birth"
+        },
+        { 
+          "field_name": "dtaddto",
+          "field_description": "Date to which admitted to U.S. (allowed to stay until)"
+        },
+        { 
+          "field_name": "gender",
+          "field_description": "Gender"
+        }
+      ]
+    },
+    {
+      "table": "country_dim",
+      "table_description": "Country dimension table",
+      "fields": [
+        {
+          "field_name": "country_code",
+          "field_description": "US I94 Country Code (i94cit or i94res). e.g. 582 (Mexico)"
+        },
+        {
+          "field_name": "country_name",
+          "field_description": "US I94 Country Name (i94_country_name)"
+        },
+        {
+          "field_name": "average_temperature",
+          "field_description": "Average temperature in country"
+        }
+      ]
+    },
+    {
+      "table": "visa_type_dim",
+      "table_description": "Visa type dimension table",
+      "fields": [
+        {
+          "field_name": "visa_type_key",
+          "field_description": "Unique id for each visa issued"
+        },
+        {
+          "field_name": "visa_type",
+          "field_description": "Visa type"
+        }
+      ]
+    },
+    {
+      "table": "immigration_time_dim",
+      "table_description": "Immigration time dimension table",
+      "fields": [
+        {
+          "field_name": "id",
+          "field_description": "Unique id"
+        },
+        {
+          "field_name": "arrdate",
+          "field_description": "Arrival date into US"
+        },
+        {
+          "field_name": "arrival_day",
+          "field_description": "Day (of the month) of immigration"
+        },
+        {
+          "field_name": "srrival_week",
+          "field_description": "Week (of the year) of immigration"
+        },
+        {
+          "field_name": "arrival_month",
+          "field_description": "Month (of the year) of immigration"
+        },
+        {
+          "field_name": "arrival_year",
+          "field_description": "Year of immigration"
+        },
+        {
+          "field_name": "arrival_weekday",
+          "field_description": "Day of the week of immigration"
+        }
+      ]
+    },
+    {
+      "table": "demographics_dim",
+      "table_description": "Demographics dimension table",
+      "fields": [
+        {
+          "field_name": "id",
+          "field_description": "Record id"
+        },
+        {
+          "field_name": "state_code",
+          "field_description": "US state code"
+        },
+        {
+          "field_name": "city",
+          "field_description": "City name"
+        },
+        {
+          "field_name": "state",
+          "field_description": "State full name"
+        },
+        {
+          "field_name": "median_age",
+          "field_description": "Median age of city's population"
+        },
+        {
+          "field_name": "male_population",
+          "field_description": "Male population of city"
+        },
+        {
+          "field_name": "female_population",
+          "field_description": "Female population of city"
+        },
+        {
+          "field_name": "total_population",
+          "field_description": "Total population of city"
+        },
+        {
+          "field_name": "number_of_veterans",
+          "field_description": "Number of veterans of city"
+        },
+        {
+          "field_name": "foreign_born",
+          "field_description": "Count of residents of the city that were not born in the city"
+        },
+        {
+          "field_name": "average_household_size",
+          "field_description": "Average household size of city"
+        },
+        {
+          "field_name": "race",
+          "field_description": "Ethnicity of immigrant"
+        },
+        {
+          "field_name": "count",
+          "field_description": "Count of city's individuals per race"
+        }
+      ]
+    }
+  ]
+}

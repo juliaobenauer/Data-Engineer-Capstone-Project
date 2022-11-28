@@ -72,3 +72,4 @@ Run each cell of the Jupyter notebook. The data dictionary is contained in the s
 
 ### Run ETL pipeline
 The ETL pipeline is defined in the `etl.py` script, which uses functions out of `tools.py` and `etl_functions.py`. It creates final data tables in Amazon S3.
+Within `etl.py`, adapt the input and output data location in the main function before running. 

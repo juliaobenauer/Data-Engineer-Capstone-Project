@@ -65,3 +65,10 @@ df = pd.read_csv(fname)`
 
 ## Disclaimer
 Data and project information were kindly provided by [Udacity](https://www.udacity.com/).
+
+## Running pipelines
+### Create data model
+Run each cell of the Jupyter notebook. The data dictionary is contained in the separate `dictionary.json` file
+
+### Run ETL pipeline
+The ETL pipeline is defined in the `etl.py` script, which uses functions out of `tools.py` and `etl_functions.py`. It creates final data tables in Amazon S3.

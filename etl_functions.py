@@ -137,7 +137,7 @@ def create_country_dimension_table(spark, df, temp_df, output_data, mapping_file
         """
         SELECT 
             i94res as country_code,
-            Name as country_name
+            name as country_name
         FROM immigration_view
         LEFT JOIN country_codes_view
         ON immigration_view.i94res=country_codes_view.code

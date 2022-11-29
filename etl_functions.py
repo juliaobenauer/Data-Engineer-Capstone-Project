@@ -2,24 +2,23 @@ import pandas as pd
 import os
 import configparser
 import datetime as dt
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import avg
 from pyspark.sql import SQLContext
 from pyspark.sql.functions import isnan, when, count, col, udf, dayofmonth, dayofweek, month, year, weekofyear
 from pyspark.sql.functions import monotonically_increasing_id
 from pyspark.sql.types import *
-
 from tools import aggregate_temperature_data
 
 
 def create_immigration_fact_table(spark, df, output_data):
-    """This function creates an country dimension from the immigration and global land temperatures data.
-    :param spark: spark session
-    :param df: spark dataframe of immigration events
-    :param visa_type_df: spark dataframe of global land temperatures data.
-    :param output_data: path to write dimension dataframe to
-    :return: spark dataframe representing calendar dimension
+    """
+    Creates a immigration fact table.
+    
+    Params
+        spark: spark session
+        df: spark dataframe of immigration events
+        output_data: path to write dimension dataframe to
     """
     # get visa_type dimension
     dim_df = get_visa_type_dimension(spark, output_data)
@@ -62,10 +61,12 @@ def create_immigration_fact_table(spark, df, output_data):
 
 
 def create_demographics_dimension_table(df, output_data):
-    """This function creates a us demographics dimension table from the us cities demographics data.
-    :param df: spark dataframe of us demographics survey data
-    :param output_data: path to write dimension dataframe to
-    :return: spark dataframe representing demographics dimension
+    """
+    Creates a demographics dimension table.
+    
+    Params
+        df: spark dataframe of us demographics survey data
+        output_data: path to write dimension dataframe to
     """
     dim_df = df.withColumnRenamed('Median Age', 'median_age') \
         .withColumnRenamed('Male Population', 'male_population') \
@@ -75,7 +76,8 @@ def create_demographics_dimension_table(df, output_data):
         .withColumnRenamed('Foreign-born', 'foreign_born') \
         .withColumnRenamed('Average Household Size', 'average_household_size') \
         .withColumnRenamed('State Code', 'state_code')
-    # lets add an id column
+    
+    # id column
     dim_df = dim_df.withColumn('id', monotonically_increasing_id())
 
     # write dimension to parquet file
@@ -85,10 +87,12 @@ def create_demographics_dimension_table(df, output_data):
 
 
 def create_visa_type_dimension_table(df, output_data):
-    """This function creates a visa type dimension from the immigration data.
-    :param df: spark dataframe of immigration events
-    :param output_data: path to write dimension dataframe to
-    :return: spark dataframe representing calendar dimension
+    """
+    Creates a visa type dimension table.
+    
+    Params
+        df: spark dataframe of immigration events
+        output_data: path to write dimension dataframe to
     """
     # create visatype df from visatype column
     visatype_df = df.select(['visatype']).distinct()
@@ -107,13 +111,15 @@ def get_visa_type_dimension(spark, output_data):
 
 
 def create_country_dimension_table(spark, df, temp_df, output_data, mapping_file):
-    """This function creates a country dimension from the immigration and global land temperatures data.
-    :param spark: spark session object
-    :param df: spark dataframe of immigration events
-    :temp_df: spark dataframe of global land temperatures data.
-    :param output_data: path to write dimension dataframe to
-    :param mapping_file: csv file that maps country codes to country names
-    :return: spark dataframe representing calendar dimension
+    """
+    Creates a country dimension table.
+    
+    Params:
+        spark: spark session object
+        df: spark dataframe of immigration events
+        temp_df: spark dataframe of global land temperatures data.
+        output_data: path to write dimension dataframe to
+        mapping_file: csv file that maps country codes to country names
     """
     # create temporary view for immigration data
     df.createOrReplaceTempView("immigration_view")
@@ -158,40 +164,44 @@ def create_country_dimension_table(spark, df, temp_df, output_data, mapping_file
     return country_df
 
 
-def create_immigration_calendar_dimension(df, output_data):
-    """This function creates an immigration calendar based on arrival date
-    :param df: spark dataframe of immigration events
-    :param output_data: path to write dimension dataframe to
-    :return: spark dataframe representing calendar dimension
+def create_immigration_time_dimension(df, output_data):
+    """
+    Creates an immigration time dimension table.
+    
+    Params:
+        df: spark dataframe of immigration events
+        output_data: path to write dimension dataframe to
     """
     # create a udf to convert arrival date in SAS format to datetime object
     get_datetime = udf(lambda x: (dt.datetime(1960, 1, 1).date() + dt.timedelta(x)).isoformat() if x else None)
 
-    # create initial calendar df from arrdate column
-    calendar_df = df.select(['arrdate']).withColumn("arrdate", get_datetime(df.arrdate)).distinct()
+    # create initial time df from arrdate column
+    time_df = df.select(['arrdate']).withColumn("arrdate", get_datetime(df.arrdate)).distinct()
 
     # expand df by adding other calendar columns
-    calendar_df = calendar_df.withColumn('arrival_day', dayofmonth('arrdate'))
-    calendar_df = calendar_df.withColumn('arrival_week', weekofyear('arrdate'))
-    calendar_df = calendar_df.withColumn('arrival_month', month('arrdate'))
-    calendar_df = calendar_df.withColumn('arrival_year', year('arrdate'))
-    calendar_df = calendar_df.withColumn('arrival_weekday', dayofweek('arrdate'))
+    time_df = time_df.withColumn('arrival_day', dayofmonth('arrdate'))
+    time_df = time_df.withColumn('arrival_week', weekofyear('arrdate'))
+    time_df = time_df.withColumn('arrival_month', month('arrdate'))
+    time_df = time_df.withColumn('arrival_year', year('arrdate'))
+    time_df = time_df.withColumn('arrival_weekday', dayofweek('arrdate'))
 
     # create an id field in calendar df
-    calendar_df = calendar_df.withColumn('id', monotonically_increasing_id())
+    time_df = time_df.withColumn('id', monotonically_increasing_id())
 
-    # write the calendar dimension to parquet file
+    # write the time dimension to parquet file
     partition_columns = ['arrival_year', 'arrival_month', 'arrival_week']
-    calendar_df.write.parquet(output_data + "immigration_calendar", partitionBy=partition_columns, mode="overwrite")
+    time_df.write.parquet(output_data + "immigration_time", partitionBy=partition_columns, mode="overwrite")
 
-    return calendar_df
+    return time_df
 
 
-# Perform quality checks here
 def quality_checks(df, table_name):
-    """Count checks on fact and dimension table to ensure completeness of data.
-    :param df: spark dataframe to check counts on
-    :param table_name: corresponding name of table
+    """
+    Count checks on fact and dimension tables.
+    
+    Params:
+        df: spark dataframe to check counts on
+        table_name: corresponding name of table
     """
     total_count = df.count()
 

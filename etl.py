@@ -12,12 +12,12 @@ from pyspark.sql.functions import monotonically_increasing_id
 import tools
 import etl_functions
 
+# set up AWS environment
 config = configparser.ConfigParser()
 config.read('config.cfg')
 
 os.environ['AWS_ACCESS_KEY_ID'] = config['AWS']['AWS_ACCESS_KEY_ID']
 os.environ['AWS_SECRET_ACCESS_KEY'] = config['AWS']['AWS_SECRET_ACCESS_KEY']
-
 
 
 def create_spark_session():
@@ -34,7 +34,9 @@ def create_spark_session():
 
 
 def process_immigration_data(spark, input_data, output_data, file_name, temperature_file, mapping_file):
-    """Process the immigration data input file and creates fact table and calendar, visa_type and country dimension tables.
+    """
+    Process the immigration data input file and creates fact table and immigration time, visa_type and country dimension tables.
+    
     Params:
         spark: spark session instance
         input_data: input file path
@@ -69,12 +71,14 @@ def process_immigration_data(spark, input_data, output_data, file_name, temperat
 
 
 def process_demographics_data(spark, input_data, output_data, file_name):
-    """Process the demographics data and create the usa_demographics_dim table
+    """
+    Processes the demographics data and create the demographics dimension table
+    
     Params:
         spark: spark session instance
         input_data: input file path
         output_data: output file path
-        file_name: USA demographics.csv file name
+        file_name: demographics file name
     """
 
     # load demographics data
@@ -89,7 +93,9 @@ def process_demographics_data(spark, input_data, output_data, file_name):
 
 
 def process_global_land_temperatures(spark, input_data, file_name):
-    """Process the global land temperatures data and return a dataframe
+    """
+    Process the global land temperatures data and return a dataframe
+    
     Params:
         spark: spark session instance
         input_data: input file path
@@ -106,20 +112,23 @@ def process_global_land_temperatures(spark, input_data, file_name):
 
 
 def main():
+    """
+    Setup of Spark session, file paths and function calls.
+    """
     spark = create_spark_session()
     input_data = "<add input data location here>"
     output_data = "<add output data location here>"
 
     immigration_file_name = 'i94_apr16_sub.sas7bdat'
     temperature_file_name = 'GlobalLandTemperaturesByCity.csv'
-    usa_demographics_file_name = 'data/us-cities-demographics.csv'
+    demographics_file_name = 'us-cities-demographics.csv'
 
-    mapping_file = input_data + "data/country_decode.csv"
+    mapping_file = input_data + "country_decode.csv"
     mapping_file = spark.read.csv(mapping_file, header=True, inferSchema=True)
 
     process_immigration_data(spark, input_data, output_data, immigration_file_name, temperature_file_name, mapping_file)
 
-    process_demographics_data(spark, input_data, output_data, usa_demographics_file_name)
+    process_demographics_data(spark, input_data, output_data, demographics_file_name)
 
 
 if __name__ == "__main__":
